@@ -21,7 +21,7 @@ function Update-K8sProduction {
                     $upServices.Add("---");
                 }
                 $newGroup = $group;
-                $upServices.Add("$($production.commonLabels.app) $($staging.images.newTag)")
+                $upServices.Add("- [ ] $($production.commonLabels.app) $($staging.images.newTag)")
                 Write-Host $production.commonLabels.app $production.images.newTag =>
                 Write-host $staging.images.newTag -ForegroundColor DarkCyan
                 $tagStr = $productionSource[$productionSource.Length - 1];

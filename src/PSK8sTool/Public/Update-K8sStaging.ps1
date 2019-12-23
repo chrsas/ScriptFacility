@@ -31,4 +31,5 @@ function Update-K8sStaging {
     git tag $tag
     Write-Host "Commit 已经生成" -ForegroundColor Green;
     Copy-ScriptToK8sStaging $tag $projectName
+    Update-StagingFile $tag $projectName
 }

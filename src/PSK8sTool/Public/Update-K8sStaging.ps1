@@ -28,7 +28,7 @@ function Update-K8sStaging {
     }
     git add .
     git commit -m "准备脚本 $tag"
-    # git tag $tag
+    git tag $tag
     Write-Host "Commit 已经生成" -ForegroundColor Green;
     Copy-ScriptToK8sStaging $tag $projectName
 }

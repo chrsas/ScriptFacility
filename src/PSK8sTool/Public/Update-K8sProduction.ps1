@@ -43,5 +43,3 @@ function Update-K8sProduction {
     Write-Host "发布内容已经复制到粘贴板" -ForegroundColor DarkCyan
     $upServices | clip
 }
-
-Export-ModuleMember -Function Update-K8sProduction

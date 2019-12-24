@@ -1,16 +1,19 @@
 function Copy-ScriptToK8sStaging {
     param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
         [string] $tag,
+        [ValidateNotNullOrEmpty()]
         [string] $projectName
     )
-    if ([string]::IsNullOrWhiteSpace($tag)) {
-        Write-Error "tag 不能为空" -ErrorAction Stop
-    }
-    if(!(Test-Path .\sql\$tag)){
+    if (!(Test-Path .\sql\$tag)) {
         Write-Error "源地址 .\sql\$tag 不存在" -ErrorAction Stop
     }
     if ([string]::IsNullOrWhiteSpace($projectName)) {
-        Write-Error "projectName 不能为空" -ErrorAction Stop
+        $projectName = Get-ProjectName;
+        if ([string]::IsNullOrWhiteSpace($projectName)) {
+            Write-Error "projectName 不能为空" -ErrorAction Stop
+        }
     }
     $deployDir = "..\..\kubernetes\deployment\$projectName";
     $targetPath = "$deployDir\sql\$(Get-Date -Format 'yyyyMMdd')-Update";
@@ -20,7 +23,7 @@ function Copy-ScriptToK8sStaging {
     $sourceDdl = Get-ChildItem .\sql\$tag | Where-Object { $_.Name -Match "^\d{14}" } | Select-Object -First 1;
     if ($null -ne $sourceDdl) {
         if (!(Test-Path $targetDdl)) {
-            New-Item -ItemType File -Path $targetDdl
+            New-Item -ItemType File -Path $targetDdl -Force
         }
         # Migraion存在性判断
         if ($null -ne (Get-Content $targetDdl | Where-Object { $_ -Match $sourceDdl.BaseName })) {
@@ -33,7 +36,7 @@ function Copy-ScriptToK8sStaging {
     $sourceData = Get-ChildItem .\sql\$tag | Where-Object { $_.Name -Match "^(?!\d{14}).*" };
     if ($null -ne $sourceData) {
         if (!(Test-Path $targetData)) {
-            New-Item -ItemType File -Path $targetData
+            New-Item -ItemType File -Path $targetData -Force
         }
         $targetDataContent = Get-Content $targetData;
         # 手写Sql重复性判断

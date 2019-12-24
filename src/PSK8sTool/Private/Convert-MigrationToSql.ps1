@@ -17,8 +17,7 @@ function Convert-MigrationToSql {
         Where-Object { $_.name -match "^\d{14}_" }
 
     if ($null -eq $migrations) {
-        # 没有Migration需要生成
-        return
+        Write-Host 没有Migration需要生成 -ForegroundColor Yellow -ErrorAction Stop
     }
     $sqlFileName = $($migrations | Select-Object -Last 1).Name.Split('_')[0];
     $fullSqlFileName = ".\sql\$tag\$sqlFileName.sql";

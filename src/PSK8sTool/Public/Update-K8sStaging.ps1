@@ -1,10 +1,11 @@
 function Update-K8sStaging {
     param (
-        [string] $tag
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string] $tag,
+        [Alias("p")]
+        [switch]$pushTag
     )
-    if ([string]::IsNullOrWhiteSpace($tag)) {
-        Write-Error "tag 不能为空" -ErrorAction Stop
-    }
 
     $projectName = Get-ProjectName;
     Write-Host "当前项目 $projectName" -ForegroundColor Green;
@@ -24,12 +25,16 @@ function Update-K8sStaging {
     }
     Convert-MigrationToSql $tag;
     if ($null -eq $(git diff HEAD --name-only)) {
-        Write-Error "当前项目没有脚本" -ErrorAction Stop;
+        Write-Information "当前项目没有脚本";
+    } else {
+        git add .
+        git commit -m "准备脚本 $tag"
+        Copy-ScriptToK8sStaging $tag $projectName
     }
-    git add .
-    git commit -m "准备脚本 $tag"
     git tag $tag
-    Write-Host "Commit 已经生成" -ForegroundColor Green;
-    Copy-ScriptToK8sStaging $tag $projectName
+    if ($pushTag) {
+        git push --follow-tags
+    }
+    Write-Host "Commit $tag 已经生成" -ForegroundColor Green;
     Update-StagingFile $tag $projectName
 }

@@ -12,7 +12,7 @@ function Copy-ScriptToK8sStaging {
     if ([string]::IsNullOrWhiteSpace($projectName)) {
         Write-Error "projectName 不能为空" -ErrorAction Stop
     }
-    $deployDir = "..\..\Deployment\deployment\$projectName";
+    $deployDir = "..\..\kubernetes\deployment\$projectName";
     $targetPath = "$deployDir\sql\$(Get-Date -Format 'yyyyMMdd')-Update";
     $targetDdl = "$targetPath\1.update_ddl.sql";
     $targetData = "$targetPath\2.update_data.sql";

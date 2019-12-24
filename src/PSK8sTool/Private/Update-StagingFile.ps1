@@ -9,7 +9,7 @@ function Update-StagingFile {
     if ([string]::IsNullOrWhiteSpace($projectName)) {
         Write-Error "projectName 不能为空" -ErrorAction Stop
     }
-    $deployDir = "..\..\Deployment\deployment\$projectName";
+    $deployDir = "..\..\kubernetes\deployment\$projectName";
     $targetStaging = "$deployDir\overlays\staging\kustomization.yaml";
     if (!(Test-Path $targetStaging)) {
         Write-Error "部署文件 $targetStaging 不存在" -ErrorAction Stop

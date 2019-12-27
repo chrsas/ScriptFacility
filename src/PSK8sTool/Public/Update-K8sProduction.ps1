@@ -9,11 +9,22 @@ function Update-K8sProduction {
     $hasOverlays = $false;
     foreach ($pPath in $pPathList) {
         # 找到 overlays 目录下的 staging 和 production 的yaml
-        Get-ChildItem $pPath -Depth 2 -Directory overlays | ForEach-Object {
+        Get-ChildItem $pPath -Depth 1 -Directory overlays | ForEach-Object {
             $hasOverlays = $true;
+            if(!(Test-Path $_/staging/kustomization.yaml)){
+                continue;
+            }
             $productionSource = Get-Content $_/production/kustomization.yaml;
             $production = ConvertFrom-Yaml $(Get-Content -Raw $_/production/kustomization.yaml);
             $staging = ConvertFrom-Yaml $(Get-Content -Raw $_/staging/kustomization.yaml);
+            if([string]::IsNullOrWhiteSpace($staging.images.newTag)){
+                # 依赖的基础服务没有newTag
+                continue;
+            }
+            if([String]::IsNullOrWhiteSpace($production.commonLabels.app)){
+                Write-Host "$_\production\kustomization.yaml 没有 commonLabels.app" -ForegroundColor DarkMagenta
+                continue;
+            }
             if ($production.images.newTag -ne $staging.images.newTag) {
                 $group = $production.commonLabels.app.Split('-')[0];
                 # 服务组变换, 增加横线

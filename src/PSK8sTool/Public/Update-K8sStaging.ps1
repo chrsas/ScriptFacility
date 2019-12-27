@@ -13,7 +13,11 @@ function Update-K8sStaging {
         git diff HEAD --name-only
         Write-Error "上述文件尚未提交" -ErrorAction Stop;
     }
-    git pull
+    # 校验当前分支
+    $currentBranch = git rev-parse --abbrev-ref HEAD;
+    if ($null -ne $(git branch -r --contains $currentBranch)) {
+        git pull
+    }
     git describe --tags
     if ([string]::IsNullOrWhiteSpace($tag)) {
         Write-Host "请输入Tag:" -ForegroundColor Yellow -NoNewline

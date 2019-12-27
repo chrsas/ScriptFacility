@@ -11,11 +11,16 @@ function Compare-GitTag {
             continue;
         }
         Write-Host "当前目录 $dir" -ForegroundColor DarkGray;
-        git pull
+        # 校验当前分支
+        $currentBranch = git rev-parse --abbrev-ref HEAD;
+        if ($null -ne $(git branch -r --contains $currentBranch)) {
+            git pull
+        }
         $describe = git describe --tags
         if ($null -eq $describe) {
             continue;
         }
+        # tag最新的时候, 没有差异信息
         $info = $describe.Split("-");
         if ($info.Length -eq 1) {
             continue;
@@ -41,7 +46,7 @@ function Compare-GitTag {
             break;
         }
     }
-    $tagList;
+    $tagList | Format-Table;
     Set-Location $root;
 }
 

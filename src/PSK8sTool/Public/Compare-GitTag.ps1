@@ -5,11 +5,12 @@ function Compare-GitTag {
     )
     $root = $PWD
     $tagList = New-Object 'Collections.Generic.List[TagInfo]';
-    foreach ($dir in Get-ChildItem -Directory -Depth 1 -Exclude design, '.vs', '.vscode', design, home, kubernetes, reports, authentication, ocr) {
+    foreach ($dir in Get-ChildItem -Directory -Depth 1 -Exclude design, '.vs', '.vscode', design, home, kubernetes, deployment, reports, authentication, ocr) {
         set-location $dir
         if ($null -eq $(Get-ChildItem -Directory -Hidden | Where-Object { $_.Name.Contains(".git") })) {
             continue;
         }
+        Write-Host "当前目录 $dir" -ForegroundColor DarkGray;
         git pull
         $describe = git describe --tags
         if ($null -eq $describe) {

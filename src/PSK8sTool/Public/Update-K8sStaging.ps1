@@ -49,6 +49,7 @@ function Update-K8sStaging {
     if ($pushTag) {
         git push
         git push origin $tag
+        Start-Pipeline
     }
     Write-Host "Commit $tag 已经生成" -ForegroundColor Green;
     Update-StagingFile $tag $projectName

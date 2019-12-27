@@ -32,17 +32,15 @@ function Compare-GitTag {
             if ([string]::IsNullOrWhiteSpace($tag)) {
                 break;
             }
-            if ($tag.Split(".").Count -ne 3) {
+            if ($tag -notmatch "^\d+\.\d+.\d+") {
                 Write-Warning "新的Tag不符合规范"
                 continue;
             }
-            git tag $tag;
-            git push origin $tag;
+            Update-K8sStaging -pushTag -tag $tag;
+            break;
         }
     }
-    if (!($pushTag)) {
-        $tagList
-    }
+    $tagList;
     Set-Location $root;
 }
 

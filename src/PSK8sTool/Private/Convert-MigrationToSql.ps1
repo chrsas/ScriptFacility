@@ -4,12 +4,18 @@ function Convert-MigrationToSql {
     )
 
     Get-ChildItem -Directory .\src\ -Name | ForEach-Object {
-        if ($_ -match 'Data$') {
+        # 目前有两种方案, 一种以Data结尾, 一种以Core结尾
+        if ($_ -match '(Data|Core)$') {
             $projectPath = $_;
         }
-        elseif ($_ -match 'Host$') {
+        elseif ($_ -match '(Host|Web)$') {
             $hostPath = $_;
         }
+    }
+
+    if([string]::IsNullOrWhiteSpace($projectPath)){
+        Write-Host 没有Migration需要生成 -ForegroundColor Yellow
+        return;
     }
 
     $migrations = Get-ChildItem ".\src\$projectPath\Migrations\" -File *.cs | `
@@ -17,7 +23,8 @@ function Convert-MigrationToSql {
         Where-Object { $_.name -match "^\d{14}_" }
 
     if ($null -eq $migrations) {
-        Write-Host 没有Migration需要生成 -ForegroundColor Yellow -ErrorAction Stop
+        Write-Host 没有Migration需要生成 -ForegroundColor Yellow
+        return;
     }
     $sqlFileName = $($migrations | Select-Object -Last 1).Name.Split('_')[0];
     $fullSqlFileName = ".\sql\$tag\$sqlFileName.sql";

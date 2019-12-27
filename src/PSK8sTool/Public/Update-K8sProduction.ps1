@@ -94,5 +94,5 @@ class UpgradeInfo {
     [string]$Message;
 }
 
-cd 'C:\GitLab\Exceed\Kubernetes\Deployment'
-Update-K8sProduction
+# cd 'C:\GitLab\Exceed\Kubernetes\Deployment'
+# Update-K8sProduction

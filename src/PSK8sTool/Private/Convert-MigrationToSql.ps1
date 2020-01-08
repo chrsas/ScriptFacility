@@ -13,7 +13,7 @@ function Convert-MigrationToSql {
         }
     }
 
-    if([string]::IsNullOrWhiteSpace($projectPath)){
+    if ([string]::IsNullOrWhiteSpace($projectPath)) {
         Write-Host 没有Migration需要生成 -ForegroundColor Yellow
         return;
     }
@@ -31,6 +31,9 @@ function Convert-MigrationToSql {
 
     dotnet ef migrations script -s ".\src\$hostPath\$hostPath.csproj" -p ".\src\$projectPath\$projectPath.csproj" -o $fullSqlFileName
     # 挪动文件到迁移历史
+    if (!(Test-Path '.\migration history\')) {
+        New-Item -ItemType Directory '.\migration history\';
+    }
     $migrations | Move-Item -Destination '.\migration history\'
     Write-Host "Migration 已经处理" -ForegroundColor Green
     return $fullSqlFileName;

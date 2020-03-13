@@ -3,7 +3,10 @@ function Update-K8sStaging {
         [ValidatePattern("^\d+\.\d+.\d+")]
         [string] $tag,
         [Alias("p")]
-        [switch]$pushTag
+        [switch]$pushTag,
+        [Parameter(Mandatory = $false, HelpMessage = "标记当前项目不需要查找sln，一般用于项目不需要Script Migration")]
+        [Alias("n")]
+        [switch]$hasntSln
     )
     # 遇到错误就停止
     $ErrorActionPreference = "Stop"
@@ -26,10 +29,6 @@ function Update-K8sStaging {
             Write-Error "Tag不符合要求" -ErrorAction Stop;
         }
     }
-    $sln = Get-Item *.sln;
-    if (!$sln) {
-        Write-Error "当前目录不是解决方案目录" -ErrorAction Stop;
-    }
     Find-Tag $tag;
     # 发布vNext
     if (Test-Path .\sql\vNext) {
@@ -40,14 +39,20 @@ function Update-K8sStaging {
             Rename-Item .\sql\vNext $tag
         }
     }
-    Convert-MigrationToSql $tag;
-    if ($null -eq $(git diff HEAD --name-only)) {
-        Write-Information "当前项目没有脚本";
-    }
-    else {
-        git add .
-        git commit -m "准备脚本 $tag"
-        Copy-ScriptToK8sStaging $tag $projectName
+    if ($hasntSln = $false) {
+        $sln = Get-Item *.sln;
+        if (!$sln) {
+            Write-Error "当前目录不是解决方案目录" -ErrorAction Stop;
+        }
+        Convert-MigrationToSql $tag;
+        if ($null -eq $(git diff HEAD --name-only)) {
+            Write-Information "当前项目没有脚本";
+        }
+        else {
+            git add .
+            git commit -m "准备脚本 $tag"
+            Copy-ScriptToK8sStaging $tag $projectName
+        }
     }
     git tag $tag
     if ($pushTag) {

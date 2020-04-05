@@ -19,10 +19,11 @@ function Update-K8sStaging {
     # 校验当前分支
     $currentBranch = git rev-parse --abbrev-ref HEAD;
     if ($null -ne $(git branch -r --contains $currentBranch)) {
-        git pull
+        git pull --rebase
     }
     git describe --tags
     if ([string]::IsNullOrWhiteSpace($tag)) {
+        Write-Object "当前分支：$currentBranch" -foreGroundColor Green
         Write-Host "请输入Tag:" -ForegroundColor Yellow -NoNewline
         $tag = Read-Host
         if ($tag -notmatch "^\d+\.\d+.\d+") {
@@ -39,7 +40,7 @@ function Update-K8sStaging {
             Rename-Item .\sql\vNext $tag
         }
     }
-    if ($hasntSln = $false) {
+    if ($hasntSln -eq $false) {
         $sln = Get-Item *.sln;
         if (!$sln) {
             Write-Error "当前目录不是解决方案目录" -ErrorAction Stop;
@@ -56,7 +57,7 @@ function Update-K8sStaging {
     }
     git tag $tag
     if ($pushTag) {
-        git push
+        git push origin $currentBranch
         git push origin $tag
         Start-Pipeline
     }

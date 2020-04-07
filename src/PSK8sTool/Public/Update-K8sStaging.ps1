@@ -11,7 +11,7 @@ function Update-K8sStaging {
     # 遇到错误就停止
     $ErrorActionPreference = "Stop"
     $projectName = Get-ProjectName;
-    Write-Host "当前项目 $projectName" -ForegroundColor Green;
+    Write-Host "当前项目:$projectName" -ForegroundColor Green;
     if ($null -ne $(git diff HEAD --name-only)) {
         git diff HEAD --name-only
         Write-Error "上述文件尚未提交" -ErrorAction Stop;
@@ -21,9 +21,9 @@ function Update-K8sStaging {
     if ($null -ne $(git branch -r --contains $currentBranch)) {
         git pull --rebase
     }
+    Write-Host "分支:$currentBranch Tag:" -ForegroundColor Green -NoNewline
     git describe --tags
     if ([string]::IsNullOrWhiteSpace($tag)) {
-        Write-Object "当前分支：$currentBranch" -ForegroundColor Green
         Write-Host "请输入Tag:" -ForegroundColor Yellow -NoNewline
         $tag = Read-Host
         if ($tag -notmatch "^\d+\.\d+.\d+") {

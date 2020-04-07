@@ -23,7 +23,7 @@ function Update-K8sStaging {
     }
     git describe --tags
     if ([string]::IsNullOrWhiteSpace($tag)) {
-        Write-Object "当前分支：$currentBranch" -foreGroundColor Green
+        Write-Object "当前分支：$currentBranch" -ForegroundColor Green
         Write-Host "请输入Tag:" -ForegroundColor Yellow -NoNewline
         $tag = Read-Host
         if ($tag -notmatch "^\d+\.\d+.\d+") {

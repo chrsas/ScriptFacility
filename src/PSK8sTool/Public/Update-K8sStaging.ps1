@@ -2,11 +2,13 @@ function Update-K8sStaging {
     param (
         [ValidatePattern("^\d+\.\d+.\d+")]
         [string] $tag,
-        [Alias("p")]
-        [switch]$pushTag,
+        [Parameter(Mandatory = $false, HelpMessage = "不推送本地commit到git")]
+        [switch]$doNotPush,
         [Parameter(Mandatory = $false, HelpMessage = "标记当前项目不需要查找sln，一般用于项目不需要Script Migration")]
-        [Alias("n")]
-        [switch]$hasntSln
+        [switch]$hasntSln,
+        [Parameter(Mandatory = $false, HelpMessage = "返回涉及的issue编号")]
+        [Alias('i')]
+        [switch]$includeIssues
     )
     # 遇到错误就停止
     $ErrorActionPreference = "Stop"
@@ -55,14 +57,21 @@ function Update-K8sStaging {
             Copy-ScriptToK8sStaging $tag $projectName
         }
     }
+    if($includeIssues){
+        $issues = Get-IssueCodes
+        Write-Host "- $projectName $tag $issues" -ForegroundColor Blue
+    }
     git tag $tag
-    if ($pushTag) {
+    if ($doNotPush -eq $false) {
         git push origin $currentBranch
         git push origin $tag
         Start-Pipeline
     }
-    Write-Host "Commit $tag 已经生成" -ForegroundColor Green;
+    Write-Host "Commit $tag 已经生成" -ForegroundColor Green
     Update-StagingFile $tag $projectName
+    if($includeIssues){
+        return $issues
+    }
 }
 
 # cd 'C:\GitLab\Exceed\Auth\am-service-dotnet'

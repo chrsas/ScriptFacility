@@ -2,7 +2,7 @@ function Update-K8sProduction {
     param ( )
     Import-Module powershell-yaml;
     $pPathList = Get-ChildItem -Directory -Exclude web-ui, notification;
-    $upServices = New-Object 'Collections.Generic.List[UpgradeInfo]'
+    $upServices = New-Object Collections.Generic.List[UpgradeInfo]
     $hasOverlays = $false;
     foreach ($pPath in $pPathList) {
         # 找到 overlays 目录下的 staging 和 production 的yaml
@@ -72,7 +72,7 @@ function Update-K8sProduction {
             "$e[${color}m$($_.Message)${e}[0m"
         }
     }
-    $strList = New-Object "System.Collections.Generic.List[String]";
+    $strList = New-Object System.Collections.Generic.List[String];
     $oldGroup = $upServices[0].App.Split('-')[0];
     foreach ($info in $upServices) {
         $newGroup = $info.App.Split('-')[0];

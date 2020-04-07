@@ -4,7 +4,7 @@ function Compare-GitTag {
         [switch]$pushTag
     )
     $root = $PWD
-    $tagList = New-Object 'Collections.Generic.List[TagInfo]';
+    $tagList = New-Object Collections.Generic.List[TagInfo];
     foreach ($dir in Get-ChildItem -Directory -Depth 1 -Exclude design, '.vs', '.vscode', design, home, kubernetes, deployment, reports, authentication, ocr) {
         set-location $dir
         if ($null -eq $(Get-ChildItem -Directory -Hidden | Where-Object { $_.Name.Contains(".git") })) {
@@ -14,7 +14,7 @@ function Compare-GitTag {
         # 校验当前分支
         $currentBranch = git rev-parse --abbrev-ref HEAD;
         if ($null -ne $(git branch -r --contains $currentBranch)) {
-            git pull
+            git pull --rebase
         }
         $describe = git describe --tags
         if ($null -eq $describe) {
@@ -25,11 +25,11 @@ function Compare-GitTag {
         if ($info.Length -eq 1) {
             continue;
         }
-        $tagInfo = [TagInfo]::new()
+        $tagInfo = [TagInfo]::new();
+        $tagList.Add($tagInfo);
         $tagInfo.Project = $dir;
         $tagInfo.Tag = $info[0]
         $tagInfo.Lag = $info[1]
-        $tagList.Add($tagInfo);
         if ($pushTag) {
             Write-Host "$($tagInfo.Project) $($tagInfo.Tag) $($tagInfo.Lag)" -ForegroundColor DarkCyan
         }
@@ -42,11 +42,15 @@ function Compare-GitTag {
                 Write-Warning "新的Tag不符合规范"
                 continue;
             }
-            Update-K8sStaging -pushTag -tag $tag;
+            $tagInfo.$Issues = Update-K8sStaging -tag $tag -i;
             break;
         }
     }
     $tagList | Format-Table;
+    Get-Date -Format '# yyyy-MM-dd'
+    $tagList | Format-Table -HideTableHeaders -AutoSize @{Label = "Slash"; Expression = { "- " } }, Project, Tag, Issues
+    Get-Date -Format '# yyyy-MM-dd'
+    $tagList | Format-Table -HideTableHeaders -AutoSize @{Label = "Slash"; Expression = { "- [ ]" } }, Project, Tag, Issues
     Set-Location $root;
 }
 
@@ -54,6 +58,7 @@ class TagInfo {
     [string]$Project
     [string]$Tag
     [Int32]$Lag
+    [string]$Issues
 }
 
 # Set-Location 'C:\GitLab\Chery'

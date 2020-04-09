@@ -23,9 +23,9 @@ function Update-K8sStaging {
     if ($null -ne $(git branch -r --contains $currentBranch)) {
         git pull --rebase
     }
-    Write-Host "分支:$currentBranch Tag:" -ForegroundColor Green -NoNewline
-    git describe --tags
     if ([string]::IsNullOrWhiteSpace($tag)) {
+        Write-Host "分支:$currentBranch Tag:" -ForegroundColor Green -NoNewline
+        git describe --tags
         Write-Host "请输入Tag:" -ForegroundColor Yellow -NoNewline
         $tag = Read-Host
         if ($tag -notmatch "^\d+\.\d+.\d+") {
@@ -59,7 +59,6 @@ function Update-K8sStaging {
     }
     if($includeIssues){
         $issues = Get-IssueCodes
-        Write-Host "- $projectName $tag $issues" -ForegroundColor Blue
     }
     git tag $tag
     if ($doNotPush -eq $false) {
@@ -68,7 +67,10 @@ function Update-K8sStaging {
         Start-Pipeline
     }
     Write-Host "Commit $tag 已经生成" -ForegroundColor Green
-    Update-StagingFile $tag $projectName
+    $project = Update-StagingFile $tag $projectName
+    $tagInfo ="- $project $tag $issues";
+    Write-Host $tagInfo -ForegroundColor Blue
+    $tagInfo | clip
     if($includeIssues){
         return $issues
     }

@@ -42,7 +42,7 @@ function Compare-GitTag {
                 Write-Warning "新的Tag不符合规范"
                 continue;
             }
-            $tagInfo.$Issues = Update-K8sStaging -tag $tag -i;
+            $tagInfo.Issues = Update-K8sStaging -tag $tag -i;
             break;
         }
     }

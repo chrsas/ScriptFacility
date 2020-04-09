@@ -22,4 +22,5 @@ function Update-StagingFile {
         $staging > $targetStaging
     }
     Write-Host "staging\kustomization.yaml 中tag替换完成" -ForegroundColor Green;
+    return $(ConvertFrom-Yaml $(Get-Content -Raw $targetStaging)).commonLabels.app;
 }

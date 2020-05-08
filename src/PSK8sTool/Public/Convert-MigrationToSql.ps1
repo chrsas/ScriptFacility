@@ -1,11 +1,16 @@
 function Convert-MigrationToSql {
     param (
-        [string] $tag
+        [string] $tag,
+        [string] $projectPath
     )
+
+    if ([System.String]::IsNullOrWhiteSpace($tag)) {
+        $tag = "release $(Get-Date -Format yyyyMMdd)"
+    }
 
     Get-ChildItem -Directory .\src\ -Name | ForEach-Object {
         # 目前有两种方案, 一种以Data结尾, 一种以Core结尾
-        if ($_ -match '(Data|Core)$') {
+        if ([System.String]::IsNullOrWhiteSpace($projectPath) -and $_ -match '(Data|Core)$') {
             $projectPath = $_;
         }
         elseif ($_ -match '(Host|Web)$') {
@@ -38,3 +43,6 @@ function Convert-MigrationToSql {
     Write-Host "Migration 已经处理" -ForegroundColor Green
     return $fullSqlFileName;
 }
+
+# Set-Location C:\GitLab\Chery\Dcs\Sales\sales-service
+# Convert-MigrationToSql -projectPath Data.Sales

@@ -14,4 +14,6 @@
 
 ### Update-K8sStaging
 
+### Compare-GitTag
+
 ### Update-K8sProduction

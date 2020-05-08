@@ -43,6 +43,7 @@ function Compare-GitTag {
                 continue;
             }
             $tagInfo.Issues = Update-K8sStaging -tag $tag -i;
+            Write-Host $tagInfo.Issues -ForegroundColor Gray
             break;
         }
     }
